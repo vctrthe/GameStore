@@ -3,6 +3,7 @@ using GameStore.Api.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults();
 builder.Services.AddValidation();
 builder.AddGameStoreDb();
 builder.Services.AddAuthentication().AddJwtBearer(options =>
@@ -17,6 +18,7 @@ builder.Services.AddAuthorizationBuilder();
 
 var app = builder.Build();
 
+app.MapDefaultEndpoints();
 app.MapGamesEndpoint();
 app.MapGenresEndpoints();
 

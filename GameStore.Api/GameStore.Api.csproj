@@ -7,12 +7,17 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.4.6" />
+      <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.4.6" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.9" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.9" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\GameStore.ServiceDefaults\GameStore.ServiceDefaults.csproj" />
     </ItemGroup>
 
 </Project>

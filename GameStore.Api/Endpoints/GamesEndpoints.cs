@@ -1,7 +1,9 @@
+using System.Text.Json;
 using GameStore.Api.Data;
 using GameStore.Api.Dtos;
 using GameStore.Api.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace GameStore.Api.Endpoints;
 
@@ -25,19 +27,34 @@ public static class GamesEndpoints
 
         // Get a game
         // GET /games/{id}
-        group.MapGet("/{id}", async (int id, GameStoreContext dbContext) =>
+        group.MapGet("/{id}", async (int id, GameStoreContext dbContext, IDistributedCache cache, ILogger<Program> logger) =>
         {
+            var cachedJson = await cache.GetStringAsync($"game:{id}");
+            if (cachedJson is not null)
+            {
+                return Results.Ok(JsonSerializer.Deserialize<GameDetailsDto>(cachedJson));
+            }
+            
+            logger.LogInformation("Cache MISS for game {GameId}", id);
+            
             var game = await dbContext.Games.FindAsync(id);
 
-            return game is null ? Results.NotFound() : Results.Ok(
-                new GameDetailsDto(
-                    game.Id,
-                    game.Name,
-                    game.GenreId,
-                    game.Price,
-                    game.ReleaseDate
-                )
-            );
+            if (game is null)
+            {
+                return Results.NotFound();
+            }
+
+            var dto = new GameDetailsDto(game.Id, game.Name, game.GenreId, game.Price, game.ReleaseDate);
+
+            await cache.SetStringAsync(
+                key: $"game:{id}",
+                value: JsonSerializer.Serialize(dto),
+                options: new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+                });
+
+            return Results.Ok(dto);
         }).WithName(GetGameEndpointName);
 
         // Create a game
