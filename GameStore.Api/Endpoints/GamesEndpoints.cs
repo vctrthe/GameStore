@@ -64,7 +64,7 @@ public static class GamesEndpoints
             );
 
             return Results.CreatedAtRoute(GetGameEndpointName, new { id = gameDto.Id }, gameDto);
-        });
+        }).RequireAuthorization();
 
         // Update a game
         // PUT /games/{id}
@@ -85,7 +85,7 @@ public static class GamesEndpoints
             await dbContext.SaveChangesAsync();
 
             return Results.NoContent();
-        });
+        }).RequireAuthorization();
 
         // Delete a game
         // DELETE /games/{id}
@@ -94,6 +94,6 @@ public static class GamesEndpoints
             await dbContext.Games.Where(game => game.Id == id).ExecuteDeleteAsync();
     
             return Results.NoContent();
-        });
+        }).RequireAuthorization();
     }
 }
